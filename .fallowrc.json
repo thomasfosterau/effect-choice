@@ -1,0 +1,38 @@
+{
+  "$schema": "./node_modules/fallow/schema.json",
+  "entry": [
+    "src/index.ts",
+    // Type-checked against `dist/` by `vp run check:dist`, never imported.
+    "test/dist-consumer/index.ts"
+  ],
+  // Bins run only by vite.config.ts tasks, which fallow doesn't read.
+  "ignoreDependencies": ["@typescript/native", "fallow", "@changesets/changelog-github"],
+  // Module-per-mechanism: `Choice` and `TieBreak` are the shared core, and no
+  // mechanism imports another.
+  "boundaries": {
+    "zones": [
+      { "name": "choice", "patterns": ["src/Choice.ts"] },
+      { "name": "tiebreak", "patterns": ["src/TieBreak.ts"] },
+      { "name": "hareclark", "patterns": ["src/HareClark.ts"] },
+      { "name": "bondauction", "patterns": ["src/BondAuction.ts"] },
+      { "name": "afldraft", "patterns": ["src/AflDraft.ts"] }
+    ],
+    "rules": [
+      { "from": "choice", "allow": [] },
+      { "from": "tiebreak", "allow": [] },
+      { "from": "hareclark", "allow": ["choice", "tiebreak"] },
+      { "from": "bondauction", "allow": ["choice", "tiebreak"] },
+      { "from": "afldraft", "allow": ["choice", "tiebreak"] }
+    ]
+  },
+  "rules": {
+    "boundary-violation": "error",
+    "unused-dev-dependencies": "error",
+    "unused-catalog-entries": "error"
+  },
+  // CRAP scores need the coverage `vp run test:unit` writes.
+  "health": {
+    "coverage": "coverage/coverage-final.json"
+  },
+  "failOnParseError": true
+}

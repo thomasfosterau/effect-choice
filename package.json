@@ -1,0 +1,99 @@
+{
+  "name": "@thomasfosterau/effect-choice",
+  "version": "0.0.0",
+  "description": "Social choice mechanisms for Effect: elections, auctions and drafts as ways for actors to choose outcomes, with Hare-Clark STV, Treasury bond auctions and the AFL draft.",
+  "keywords": [
+    "afl",
+    "auction",
+    "draft",
+    "effect",
+    "election",
+    "hare-clark",
+    "social-choice",
+    "stv",
+    "treasury-bonds",
+    "typescript",
+    "voting"
+  ],
+  "homepage": "https://github.com/thomasfosterau/effect-choice#readme",
+  "bugs": {
+    "email": "me@thomasfoster.au"
+  },
+  "license": "MIT",
+  "author": "Thomas Foster <me@thomasfoster.au>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thomasfosterau/effect-choice.git"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "docs/mechanisms.md",
+    "LICENSE.md",
+    "CHANGELOG.md"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./Choice": {
+      "types": "./dist/Choice.d.ts",
+      "import": "./dist/Choice.js"
+    },
+    "./TieBreak": {
+      "types": "./dist/TieBreak.d.ts",
+      "import": "./dist/TieBreak.js"
+    },
+    "./HareClark": {
+      "types": "./dist/HareClark.d.ts",
+      "import": "./dist/HareClark.js"
+    },
+    "./BondAuction": {
+      "types": "./dist/BondAuction.d.ts",
+      "import": "./dist/BondAuction.js"
+    },
+    "./AflDraft": {
+      "types": "./dist/AflDraft.d.ts",
+      "import": "./dist/AflDraft.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prepare": "vp config && effect-tsgo patch --typescript --oxlint --tsrs"
+  },
+  "devDependencies": {
+    "@changesets/changelog-github": "catalog:",
+    "@changesets/cli": "catalog:",
+    "@effect/docgen": "catalog:",
+    "@effect/language-service": "catalog:",
+    "@effect/tsgo": "catalog:",
+    "@effect/vitest": "catalog:",
+    "@enfect/oxlint": "catalog:",
+    "@types/node": "catalog:",
+    "@typescript/native": "catalog:",
+    "@vitest/coverage-istanbul": "catalog:",
+    "effect": "catalog:",
+    "fallow": "catalog:",
+    "typedoc": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "effect": "catalog:peers"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@12.21.0"
+}
