@@ -1,0 +1,54 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Effect-TS/language-service/refs/heads/main/schema.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM"],
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    // TypeScript 6+ no longer auto-includes every `@types/*` package.
+    "types": ["node"],
+    "strict": true,
+    "exactOptionalPropertyTypes": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    // Sources import siblings with an explicit `.ts` extension (`./Choice.ts`);
+    // `allowImportingTsExtensions` permits it under `noEmit` and
+    // `rewriteRelativeImportExtensions` rewrites it to `.js` for anything that
+    // emits.
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    // Examples import the package by its public name, resolved to `src/`.
+    "paths": {
+      "@thomasfosterau/effect-choice": ["./src/index.ts"]
+    },
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        // A "warning" fails the patched native `tsc` by default; this flag
+        // keeps Effect warnings visible but non-blocking, as in the sibling
+        // library repos.
+        "ignoreEffectWarningsInTscExitCode": true,
+        "diagnosticSeverity": {
+          // `effect/Rational` (exact transfer values) is marked unstable in
+          // Effect 4, so as a warning this would fire on every use of it.
+          "unstableApiUsage": "suggestion"
+        }
+      }
+    ]
+  },
+  "include": ["src/**/*", "examples/**/*", "test/**/*", "vite.config.ts"],
+  // `test/dist-consumer/` type-checks against the built `dist/` under its own
+  // tsconfig (`vp run check:dist`), not against `src/`.
+  "exclude": ["node_modules", "dist", "test/dist-consumer"]
+}
