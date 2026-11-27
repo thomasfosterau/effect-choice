@@ -28,9 +28,10 @@ Every external version lives in the `pnpm-workspace.yaml` catalog; never edit on
 ## Coding guidelines
 
 - Use Effect idioms throughout, and strongly prefer Effect v4's own modules (`Array`, `Option`, `Data`, `Rational`, `DateTime`, `Schema`, …) over hand-rolled equivalents. Read the installed `effect` package rather than guessing at an API.
-- One module per mechanism: each mechanism imports only the shared core (`Choice` and `TieBreak`), never another mechanism. Fallow's boundaries enforce it.
+- The library holds general mechanisms with configurable rules; a specific real-world system (Hare-Clark, the AOFM's bond tenders, the AFL draft) is a choice of those rules plus its own glue, and lives in `examples/`, tested under `test/examples/`. Examples import the package by its public name.
+- One module per mechanism family: each mechanism imports only the shared core (`Choice` and `TieBreak`), never another mechanism. Fallow's boundaries enforce it.
 - Every mechanism is framed the same way: actors express choices over alternatives, and the mechanism resolves them. A sealed mechanism exposes a `Choice.Mechanism`; a sequential one a `Choice.Protocol`. Ties a mechanism's own rules cannot settle go to `TieBreak.choose`, never to input order or `Math.random`.
-- Exports follow Effect's layout: `src/index.ts` re-exports each module as a PascalCase namespace, and each is also importable from its own PascalCase subpath (`@thomasfosterau/effect-choice/HareClark`). A new mechanism adds both, plus its `exports` entry in `package.json`, a fallow boundary zone, and a section in [mechanisms.md](mechanisms.md).
+- Exports follow Effect's layout: `src/index.ts` re-exports each module as a PascalCase namespace, and each is also importable from its own PascalCase subpath (`@thomasfosterau/effect-choice/Vote`). A new module adds both, plus its `exports` entry in `package.json`, a fallow boundary zone, and a section in [mechanisms.md](mechanisms.md).
 - The build is `platform: "neutral"`: no Node imports in `src/`.
 - Counting and allocation rules cite the rule they implement in the module's doc comment, and say where they simplify it.
 - Absent values are `Option`. Options-object members are `readonly x?: T` (`exactOptionalPropertyTypes` is on); wire schemas keep native optionals.

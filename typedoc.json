@@ -35,16 +35,18 @@
   "intentionallyNotDocumented": [
     "TieBreak.TieUnresolved.brand",
     "TieBreak.TieUnresolved.__type.brand",
-    "HareClark.InvalidElection.brand",
-    "HareClark.InvalidElection.__type.brand",
-    "BondAuction.InvalidTender.brand",
-    "BondAuction.InvalidTender.__type.brand",
-    "BondAuction.InvalidBid.brand",
-    "BondAuction.InvalidBid.__type.brand",
-    "AflDraft.InvalidDraft.brand",
-    "AflDraft.InvalidDraft.__type.brand",
-    "AflDraft.InvalidResponse.brand",
-    "AflDraft.InvalidResponse.__type.brand"
+    "Vote.InvalidElection.brand",
+    "Vote.InvalidElection.__type.brand",
+    "Auction.InvalidAuction.brand",
+    "Auction.InvalidAuction.__type.brand",
+    "Auction.InvalidBid.brand",
+    "Auction.InvalidBid.__type.brand",
+    "Auction.InvalidClockResponse.brand",
+    "Auction.InvalidClockResponse.__type.brand",
+    "Draft.InvalidDraft.brand",
+    "Draft.InvalidDraft.__type.brand",
+    "Draft.InvalidResponse.brand",
+    "Draft.InvalidResponse.__type.brand"
   ],
   "validation": {
     "notExported": true,

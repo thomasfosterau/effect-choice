@@ -12,7 +12,7 @@ Read [README.md](README.md) and [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) fir
 ## Pitfalls
 
 - **The README is the npm page**: its links must stay absolute, and the guide it links (`docs/mechanisms.md`) is published through `package.json` `files`.
-- **Rules are law, not taste.** Hare-Clark and the AOFM's tender rules are set out in legislation and published procedures, and the AFL's draft rules change most years; a change to a counting or allocation rule cites its source in the module's doc comment.
+- **Rules are law, not taste.** Hare-Clark and the AOFM's tender rules are set out in legislation and published procedures, and the AFL's draft rules change most years; a change to a counting or allocation rule cites its source in the doc comment of the module or example that implements it. Keep jurisdiction- or organisation-specific code in `examples/`, not `src/`.
 - **`effect-tsgo patch` is version-locked.** `@effect/tsgo`, `@typescript/native` and `vite-plus` move together, or `vp install` fails; read the catalog comments first.
 - **`{@link}` must resolve in the published surface** (a name in scope or a namespace path such as `{@link TieBreak.TieBreak}`), or `vp run docgen` fails.
 

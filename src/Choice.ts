@@ -7,11 +7,11 @@
  *
  * - A {@link Mechanism} is _sealed_: every actor expresses a choice up front
  *   (a ballot, a sealed bid) without seeing anyone else's, and the mechanism
- *   resolves them all at once. Hare-Clark elections and bond tenders are
+ *   resolves them all at once. Elections and sealed-bid auctions are
  *   sealed.
  * - A {@link Protocol} is _sequential_: the mechanism asks one actor at a
- *   time, and each answer changes what the next actor is asked. Drafts are
- *   sequential.
+ *   time, and each answer changes what the next actor is asked. Drafts and
+ *   clock auctions are sequential.
  *
  * Either way the actors' side is an {@link Agent}: an effectful function from
  * the question an actor is asked to the actor's answer. An agent can be a

@@ -7,12 +7,13 @@
  * - **`Choice`**: actors, alternatives, sealed {@link Choice.Mechanism}s and
  *   sequential {@link Choice.Protocol}s, and the agents that answer them.
  * - **`TieBreak`**: the tie rule a mechanism falls back on.
- * - **`HareClark`**: the Hare-Clark single transferable vote used in
- *   Tasmania and the ACT.
- * - **`BondAuction`**: sealed-bid yield tenders for Treasury bonds, with
- *   discriminatory or uniform pricing.
- * - **`AflDraft`**: the AFL national draft, with priority picks, traded picks
- *   and father-son and academy bid matching.
+ * - **`Vote`**: elections: first past the post, the single non-transferable
+ *   vote, approval and Borda counts, instant runoff and the single
+ *   transferable vote under configurable rules.
+ * - **`Auction`**: sealed-bid auctions (first-price, second-price,
+ *   discriminatory, uniform) and clock auctions (Dutch and English).
+ * - **`Draft`**: linear and snake drafts with inserted and traded picks, and
+ *   claims on players matched under pluggable rules.
  *
  * @since 0.1.0
  */
@@ -32,22 +33,22 @@ export * as Choice from "./Choice.ts";
 export * as TieBreak from "./TieBreak.ts";
 
 /**
- * Hare-Clark elections.
+ * Elections.
  *
  * @since 0.1.0
  */
-export * as HareClark from "./HareClark.ts";
+export * as Vote from "./Vote.ts";
 
 /**
- * Treasury bond tenders.
+ * Auctions.
  *
  * @since 0.1.0
  */
-export * as BondAuction from "./BondAuction.ts";
+export * as Auction from "./Auction.ts";
 
 /**
- * The AFL national draft.
+ * Drafts.
  *
  * @since 0.1.0
  */
-export * as AflDraft from "./AflDraft.ts";
+export * as Draft from "./Draft.ts";

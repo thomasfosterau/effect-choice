@@ -1,17 +1,18 @@
 {
   "name": "@thomasfosterau/effect-choice",
   "version": "0.0.0",
-  "description": "Social choice mechanisms for Effect: elections, auctions and drafts as ways for actors to choose outcomes, with Hare-Clark STV, Treasury bond auctions and the AFL draft.",
+  "description": "Social choice mechanisms for Effect: elections, auctions and drafts as ways for actors to choose outcomes, with configurable rules for each.",
   "keywords": [
     "afl",
     "auction",
     "draft",
     "effect",
     "election",
-    "hare-clark",
+    "fptp",
+    "irv",
+    "snake-draft",
     "social-choice",
     "stv",
-    "treasury-bonds",
     "typescript",
     "voting"
   ],
@@ -50,17 +51,17 @@
       "types": "./dist/TieBreak.d.ts",
       "import": "./dist/TieBreak.js"
     },
-    "./HareClark": {
-      "types": "./dist/HareClark.d.ts",
-      "import": "./dist/HareClark.js"
+    "./Vote": {
+      "types": "./dist/Vote.d.ts",
+      "import": "./dist/Vote.js"
     },
-    "./BondAuction": {
-      "types": "./dist/BondAuction.d.ts",
-      "import": "./dist/BondAuction.js"
+    "./Auction": {
+      "types": "./dist/Auction.d.ts",
+      "import": "./dist/Auction.js"
     },
-    "./AflDraft": {
-      "types": "./dist/AflDraft.d.ts",
-      "import": "./dist/AflDraft.js"
+    "./Draft": {
+      "types": "./dist/Draft.d.ts",
+      "import": "./dist/Draft.js"
     },
     "./package.json": "./package.json"
   },

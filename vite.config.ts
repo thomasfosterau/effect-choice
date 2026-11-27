@@ -191,7 +191,7 @@ export default defineConfig({
       // `Data.TaggedEnum` spells a variant without fields as `{}`; nothing
       // else stands in for it (`Record<string, never>` collides with `_tag`).
       {
-        files: ["src/AflDraft.ts"],
+        files: ["src/Auction.ts", "src/Draft.ts"],
         rules: {
           "effect/avoid-object-type": "off",
         },
@@ -220,6 +220,13 @@ export default defineConfig({
     ignorePatterns: ["**/dist/**", "api-docs/**"],
   },
 
+  // Examples import the package by its public name, as a consumer would.
+  resolve: {
+    alias: {
+      "@thomasfosterau/effect-choice": new URL("src/index.ts", import.meta.url).pathname,
+    },
+  },
+
   test: {
     include: ["test/**/*.test.ts"],
     coverage: {
@@ -227,7 +234,7 @@ export default defineConfig({
       // `json` writes coverage-final.json for fallow.
       reporter: ["text-summary", "json-summary", "json"],
       reportsDirectory: "./coverage",
-      include: ["src/**/*.ts"],
+      include: ["src/**/*.ts", "examples/**/*.ts"],
       exclude: ["**/*.d.ts"],
     },
   },

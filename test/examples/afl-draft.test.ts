@@ -3,7 +3,8 @@ import * as Arr from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import { describe, expect } from "vite-plus/test";
-import { AflDraft, Choice } from "../src/index.ts";
+import { Choice, Draft } from "@thomasfosterau/effect-choice";
+import * as AflDraft from "../../examples/afl-draft.ts";
 
 const [A, B, C, D, E, F, G, H, I, J] = Arr.map(
   ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
@@ -22,7 +23,7 @@ const season: AflDraft.Season = {
   premier: G,
 };
 const order = [J, I, H, F, E, D, C, B, A, G];
-const bigBoard = AflDraft.byRanking(() => players);
+const bigBoard = Draft.byRanking(() => players);
 
 describe("draftOrder", () => {
   it.effect("puts non-finalists first, then finalists by the week they went out", () =>
@@ -53,8 +54,8 @@ describe("draftValueIndex", () => {
 });
 
 describe("run", () => {
-  const draft: AflDraft.Draft = {
-    order,
+  const draft: AflDraft.AflDraft = {
+    season,
     rounds: 4,
     players,
     priorityPicks: [{ club: I, placement: "StartOfFirstRound" }],
@@ -65,7 +66,7 @@ describe("run", () => {
   it.effect("runs priority and traded picks in order", () =>
     Effect.gen(function* () {
       const result = yield* AflDraft.run({ ...draft, nominations: [] }, bigBoard);
-      expect(Arr.map(Arr.take(result.selections, 12), (s) => s.club)).toEqual([
+      expect(Arr.map(Arr.take(result.selections, 12), (s) => s.team)).toEqual([
         I,
         J,
         I,
@@ -89,10 +90,10 @@ describe("run", () => {
       const result = yield* AflDraft.run(draft, bigBoard);
       // I bids on A's academy player with pick 3; A matches, and I picks again.
       expect(Arr.take(result.selections, 4)).toEqual([
-        { number: 1, round: 1, club: I, player: player(1), matchedBidBy: Option.none() },
-        { number: 2, round: 1, club: J, player: player(2), matchedBidBy: Option.none() },
-        { number: 3, round: 1, club: A, player: player(3), matchedBidBy: Option.some(I) },
-        { number: 4, round: 1, club: I, player: player(4), matchedBidBy: Option.none() },
+        { number: 1, round: 1, team: I, player: player(1), matchedBidBy: Option.none() },
+        { number: 2, round: 1, team: J, player: player(2), matchedBidBy: Option.none() },
+        { number: 3, round: 1, team: A, player: player(3), matchedBidBy: Option.some(I) },
+        { number: 4, round: 1, team: I, player: player(4), matchedBidBy: Option.none() },
       ]);
       // Pick 3 is worth 2,234 points, so A owes 1,787. Its first-round pick
       // (now 11, 1,329 points) goes; its second-round pick (21, 878 points)
@@ -100,7 +101,7 @@ describe("run", () => {
       // than its remaining 420 points.
       expect(result.payments).toEqual([
         {
-          club: A,
+          team: A,
           player: player(3),
           cost: 1787,
           surrendered: [11],
@@ -110,7 +111,7 @@ describe("run", () => {
       ]);
       expect(
         Arr.map(
-          Arr.filter(result.selections, (s) => s.club === A),
+          Arr.filter(result.selections, (s) => s.team === A),
           (s) => s.number,
         ),
       ).toEqual([3, 29, 39, 41]);
@@ -122,7 +123,7 @@ describe("run", () => {
     Effect.gen(function* () {
       const result = yield* AflDraft.run(
         draft,
-        AflDraft.byRanking(
+        Draft.byRanking(
           () => players,
           () => false,
         ),
@@ -130,7 +131,7 @@ describe("run", () => {
       expect(result.selections[2]).toEqual({
         number: 3,
         round: 1,
-        club: I,
+        team: I,
         player: player(3),
         matchedBidBy: Option.none(),
       });
@@ -146,7 +147,7 @@ describe("run", () => {
           rounds: 1,
           trades: [{ round: 1, originalClub: A, club: B }],
         },
-        AflDraft.byRanking(
+        Draft.byRanking(
           () => players,
           () => true,
         ),
@@ -160,13 +161,13 @@ describe("run", () => {
     Effect.gen(function* () {
       const result = yield* AflDraft.run(
         { ...draft, rounds: 1 },
-        AflDraft.byRanking((club) => (club === A ? [player(3)] : Arr.drop(players, 3))),
+        Draft.byRanking((club) => (club === A ? [player(3)] : Arr.drop(players, 3))),
       );
       expect(Arr.findFirst(result.selections, (s) => s.player === player(3))).toEqual(
         Option.some({
           number: 10,
           round: 1,
-          club: A,
+          team: A,
           player: player(3),
           matchedBidBy: Option.none(),
         }),
@@ -178,9 +179,9 @@ describe("run", () => {
     Effect.gen(function* () {
       const result = yield* AflDraft.run(
         { ...draft, nominations: [] },
-        AflDraft.byRanking((club) => (club === J ? [] : players)),
+        Draft.byRanking((club) => (club === J ? [] : players)),
       );
-      expect(Arr.filter(result.selections, (s) => s.club === J)).toEqual([]);
+      expect(Arr.filter(result.selections, (s) => s.team === J)).toEqual([]);
       expect(result.selections).toHaveLength(37);
     }),
   );
@@ -192,9 +193,9 @@ describe("run", () => {
           Effect.succeed({ _tag: "Select", player: Choice.AlternativeId("nobody") }),
         ),
       );
-      expect(unavailable).toMatchObject({ _tag: "InvalidResponse", club: I });
+      expect(unavailable).toMatchObject({ _tag: "InvalidResponse", team: I });
       const noBid = yield* Effect.flip(
-        AflDraft.run(draft, () => Effect.succeed(AflDraft.Response.Match())),
+        AflDraft.run(draft, () => Effect.succeed(Draft.Response.Match())),
       );
       expect(noBid._tag).toBe("InvalidResponse");
     }),

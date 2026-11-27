@@ -1,51 +1,67 @@
 # The mechanisms
 
-Each mechanism is a way for actors to choose outcomes. This page explains which rules each one implements and where it simplifies them. The module doc comments go into more detail.
+Each mechanism is a way for actors to choose outcomes, with rules you configure. This page lists the rules each module offers and where it simplifies them. The module doc comments go into more detail, and [`examples/`](https://github.com/thomasfosterau/effect-choice/tree/trunk/examples) shows real-world systems assembled from them.
 
-## Hare-Clark (`HareClark`)
+## Elections (`Vote`)
 
-This is the proportional single transferable vote used for the Tasmanian House of Assembly and the ACT Legislative Assembly.
+Voters' ballots list candidates in order of preference (or, for approval voting, the candidates they approve of). Preferences count up to the first unknown or repeated candidate, and a ballot needs at least `minimumPreferences` of them to be formal (default 1).
 
-| Rule               | Implemented as                                                                                                                                                                                                                                                                 |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Formality          | Preferences count up to the first unknown or repeated candidate. A ballot needs at least `minimumPreferences` of them: the default is 1 (ACT), and for Tasmania pass the number of vacancies.                                                                                  |
-| Quota              | Droop: `floor(formal / (seats + 1)) + 1`.                                                                                                                                                                                                                                      |
-| Surplus transfers  | Last bundle (Gregory). Only the parcel that took the candidate to quota is re-examined. Its transfer value is the surplus divided by the papers with a next continuing preference, capped at the value those papers arrived with. Each recipient gets `floor(papers × value)`. |
-| Order of surpluses | Largest first.                                                                                                                                                                                                                                                                 |
-| Exclusions         | The lowest candidate is excluded. Their papers move one count per transfer value, highest value first.                                                                                                                                                                         |
-| Election           | A candidate is elected at quota and gets no more papers. When the continuing candidates are no more than the vacancies left, they're all elected.                                                                                                                              |
-| Ties               | Decided by the most recent count at which the tied candidates' totals differed, then by the `TieBreak` rule.                                                                                                                                                                   |
-| Set aside          | Exhausted papers and fractions lost to rounding are added up, so the totals plus the set-aside always equal the formal vote.                                                                                                                                                   |
-| Not modelled       | Robson rotation, which changes the order on the ballot paper but not the count. Casual-vacancy countbacks.                                                                                                                                                                     |
+| Method                          | Rule                                                                                                               |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `firstPastThePost`              | One seat: the most first preferences wins.                                                                         |
+| `plurality`                     | The `seats` candidates with the most first preferences. With more than one seat, the single non-transferable vote. |
+| `approval`                      | One point for each candidate a ballot lists. The `seats` most approved are elected.                                |
+| `borda`                         | With `n` candidates, `n - 1` points for a first preference, `n - 2` for a second, and so on.                       |
+| `instantRunoff(rules)`          | One seat, by the single transferable vote.                                                                         |
+| `stv(election, ballots, rules)` | The single transferable vote, with the rules below.                                                                |
 
-Transfer values are exact `Rational`s, so recounting the same ballots gives the same result to the vote.
+| STV rule       | Options                                                                                                                                                                                                                                                                                   |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `quota`        | `droopQuota` (the default), `floor(formal / (seats + 1)) + 1`; `hareQuota`, `ceil(formal / seats)`; or your own function.                                                                                                                                                                 |
+| `surplus`      | `"WeightedInclusive"` (the default): every paper, each parcel at its own value times surplus over total. `"Inclusive"`: every paper at surplus over papers. `"LastBundle"`: only the parcel that reached quota, at surplus over its continuing papers, capped at the value it arrived at. |
+| `exclusion`    | `"AllAtOnce"` (the default), or `"ByTransferValue"`: one count per value, highest first.                                                                                                                                                                                                  |
+| `surplusOrder` | `"Largest"` (the default) or `"ElectionOrder"`.                                                                                                                                                                                                                                           |
+| Every count    | Each recipient gets the floor of its papers times their value. Exhausted papers and fractions lost to rounding are set aside, so the totals plus the set-aside always equal the formal vote. Values are exact `Rational`s.                                                                |
+| Election       | A candidate is elected at quota and gets no more papers. When the continuing candidates are no more than the vacancies left, they're all elected.                                                                                                                                         |
+| Ties           | Decided by the most recent count at which the tied candidates' totals differed, then by the `TieBreak` rule.                                                                                                                                                                              |
 
-## Bond tenders (`BondAuction`)
+Scoring methods send ties straight to the `TieBreak` rule.
 
-This is a sealed-bid yield tender, the way the Australian Office of Financial Management issues Treasury Bonds.
+## Auctions (`Auction`)
 
-| Rule         | Implemented as                                                                                                                                                                                                                                    |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Acceptance   | Bids are accepted from the lowest yield up until the offer is filled.                                                                                                                                                                             |
-| The cut-off  | Bids at the highest accepted yield share what remains pro rata, in whole allocation units. Units left over go one each to the largest remainders. If there are more equal remainders than units, the `TieBreak` rule decides.                     |
-| Pricing      | Discriminatory (multiple-price, the AOFM's rule) prices each bid at its own yield. Uniform prices every bid at the cut-off.                                                                                                                       |
-| Price        | Uses the Reserve Bank's Treasury Bond formula, per $100 face value, rounded to three decimal places. Coupons are half-yearly on the maturity date's day. A settlement within seven days of a coupon is ex-interest. Consideration is to the cent. |
-| Reported     | Allocation per bid, cut-off yield, share allocated at the cut-off, weighted average yield and coverage ratio.                                                                                                                                     |
-| Not modelled | Non-competitive bids, limits on bids per bidder, and the issuer's discretion to scale back an issue.                                                                                                                                              |
+### Sealed bids (`run`, `mechanism`)
 
-## The AFL draft (`AflDraft`)
+Each bid is a quantity at a price. The supply goes to the best bids first.
 
-This is the AFL national draft, run as a sequential protocol: the club on the clock picks a player, and the protocol asks the next club.
+| Rule                 | Options                                                                                                                                                                                                           |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `better`             | `"Highest"` (the default) or `"Lowest"`, for bids made in yields or rates.                                                                                                                                        |
+| `reserve`            | Bids worse than it are rejected.                                                                                                                                                                                  |
+| `rationing`          | At the marginal price, `"ProRata"` (the default) in whole units, with units left by rounding going to the largest remainders; or `"ByLot"`, whole bids in an order the `TieBreak` rule draws.                     |
+| `pricing`            | `payAsBid` (the default; discriminatory), `uniform` (the marginal accepted price), `firstRejected` (the best price rejected for want of supply, else the reserve: with one unit, a Vickrey auction), or your own. |
+| `unit`, `minimumBid` | Quantities are whole multiples of the unit, and at least the minimum.                                                                                                                                             |
+| Reported             | Each bid's allocation and price, the marginal price, the share allocated at the margin, the weighted average price and the coverage ratio.                                                                        |
 
-| Rule           | Implemented as                                                                                                                                                                                                                                                                                                                                           |
-| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Order          | Non-finalists in reverse ladder order, then finalists by the week they were eliminated (reverse ladder order within a week), then the runner-up and the premier. The same order repeats every round.                                                                                                                                                     |
-| Priority picks | At the start of the first round, or at the end of the first or second round.                                                                                                                                                                                                                                                                             |
-| Trades         | A traded pick keeps its place in the order and changes owner.                                                                                                                                                                                                                                                                                            |
-| Bids           | When a club selects a player another club has nominated (father-son, academy or Next Generation Academy), that counts as a bid. If the nominating club matches, it gets the player at the bid's pick. The bidder's pick and every later pick move back one place, and the bidder picks again.                                                            |
-| Payment        | The bid pick's points, less a discount (20 per cent by default), paid with the matching club's next picks in order. Picks are surrendered while they're worth no more than what's still owed. The pick that finishes the payment slides back to the first place worth no more than its remaining points. Whatever is still owed after that is a deficit. |
-| Points         | The draft value index as introduced in 2015 (3,000 points for pick 1). Pass `points` and `discount` to use another year's values.                                                                                                                                                                                                                        |
-| Passing        | A club that passes gives up its remaining picks.                                                                                                                                                                                                                                                                                                         |
-| Not modelled   | Free-agency compensation picks (add them as priority picks), the rookie and mid-season drafts, live trading during the draft, and the limits on which picks may pay for a bid. These limits have changed from year to year.                                                                                                                              |
+### Clock auctions (`dutch`, `english`)
 
-The `byRanking` agent drafts from a ranking of players, which makes a draft simple to simulate. To use real clubs' decisions, provide any `Choice.Agent<Prompt, Response>` instead.
+The auctioneer calls a price and asks each bidder in turn, as a sequential `Choice.Protocol`.
+
+| Auction   | Rule                                                                                                                                                                                                                                                                                 |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `dutch`   | The price falls by `step` from `start` to `floor`. At each price every bidder is asked how many units it takes. Takes at one price that exceed what is left are filled whole, in an order the `TieBreak` rule draws. Each buyer pays the price it took at.                           |
+| `english` | One item. The price rises by `step` from `start`, and every bidder still in is asked whether it stays. The last one in buys at that price. If everyone drops out at once, the `TieBreak` rule picks among those still in at the previous price. If nobody opens, the item is unsold. |
+
+`truthful` is an agent that bids up to each bidder's private value.
+
+## Drafts (`Draft`)
+
+Teams take turns choosing players with the picks they hold, as a sequential `Choice.Protocol`.
+
+| Rule       | Options                                                                                                                                                                                                                                                                                                                                                                                              |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Order      | `linear` (the same order every round) or `snake` (reversed every other round), then reshaped with `insert` (priority or compensation picks) and `trade`. A traded pick keeps its place and remembers its original team.                                                                                                                                                                              |
+| Claims     | A team may claim a player. When another team selects them, that is a bid; if the claiming team matches, it gets the player at that pick, the bidder's pick and every later one move back a place, and the bidder chooses again.                                                                                                                                                                      |
+| `matching` | `matchFree` (the default), `matchByForfeit` (the matching team's next pick), or `matchWithPoints({ points, discount })`: the bid pick's points less the discount, paid with later picks. Picks worth no more than what's still owed are surrendered, the one that finishes the payment slides back to the first place worth no more than its remaining points, and anything still owed is a deficit. |
+| Passing    | A team that passes gives up its remaining picks.                                                                                                                                                                                                                                                                                                                                                     |
+
+`byRanking` is an agent that drafts from a ranking of players. To use real teams' decisions, provide any `Choice.Agent<Prompt, Response>` instead.

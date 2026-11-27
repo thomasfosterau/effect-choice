@@ -1,9 +1,11 @@
 {
   "$schema": "./node_modules/fallow/schema.json",
   "entry": [
-    "src/index.ts",
     // Type-checked against `dist/` by `vp run check:dist`, never imported.
-    "test/dist-consumer/index.ts"
+    "test/dist-consumer/index.ts",
+    // Worked examples of building specific systems on the library; their
+    // tests are under test/examples/.
+    "examples/*.ts"
   ],
   // Bins run only by vite.config.ts tasks, which fallow doesn't read.
   "ignoreDependencies": ["@typescript/native", "fallow", "@changesets/changelog-github"],
@@ -13,16 +15,16 @@
     "zones": [
       { "name": "choice", "patterns": ["src/Choice.ts"] },
       { "name": "tiebreak", "patterns": ["src/TieBreak.ts"] },
-      { "name": "hareclark", "patterns": ["src/HareClark.ts"] },
-      { "name": "bondauction", "patterns": ["src/BondAuction.ts"] },
-      { "name": "afldraft", "patterns": ["src/AflDraft.ts"] }
+      { "name": "vote", "patterns": ["src/Vote.ts"] },
+      { "name": "auction", "patterns": ["src/Auction.ts"] },
+      { "name": "draft", "patterns": ["src/Draft.ts"] }
     ],
     "rules": [
       { "from": "choice", "allow": [] },
       { "from": "tiebreak", "allow": [] },
-      { "from": "hareclark", "allow": ["choice", "tiebreak"] },
-      { "from": "bondauction", "allow": ["choice", "tiebreak"] },
-      { "from": "afldraft", "allow": ["choice", "tiebreak"] }
+      { "from": "vote", "allow": ["choice", "tiebreak"] },
+      { "from": "auction", "allow": ["choice", "tiebreak"] },
+      { "from": "draft", "allow": ["choice", "tiebreak"] }
     ]
   },
   "rules": {
