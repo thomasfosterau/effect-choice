@@ -1,6 +1,6 @@
 {
   "name": "@thomasfosterau/effect-choice",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Social choice mechanisms for Effect: elections, auctions and drafts as ways for actors to choose outcomes, with configurable rules for each.",
   "keywords": [
     "afl",
